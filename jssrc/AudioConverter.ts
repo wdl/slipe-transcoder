@@ -21,16 +21,14 @@ export const invoke = async (event: any, context: any) => {
     });
   });
 
-  const r = child_process.spawnSync('./bin/ffmpeg', [
-    '-y', '-i', url, `-c:a`, `aac`, `-b:a`, `128000`, '-f', 'adts', `-`,
+  const r = child_process.spawn('./bin/ffmpeg', [
+    '-y', '-i', url, `-c:a`, `aac`, `-b:a`, `128000`, '-vn', '-f', 'adts', `-`,
   ]);
-
-  console.log(r.stderr.toString());
 
   await s3.upload({
     Bucket: process.env.BUCKET_NAME!,
     Key: `${event.id}/audio.aac`,
-    Body: Buffer.from(r.stdout),
+    Body: r.stdout!,
   }).promise();
 
   await ddb.update({

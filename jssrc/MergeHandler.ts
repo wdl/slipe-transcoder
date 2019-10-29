@@ -43,19 +43,18 @@ export const invoke = async (event: any, context: any) => {
     });
   });
 
-  const r = child_process.spawnSync('./bin/ffmpeg', [
-    '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-f', 'concat', '-safe', '0', '-i', '/tmp/list.txt', '-c', 'copy', '/tmp/video.mp4',
-  ]);
-
-  const r2 = child_process.spawnSync('./bin/ffmpeg', [
-    '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-i', '/tmp/video.mp4', '-i', audioUrl, '-c', 'copy', '-f', 'mp4', '/tmp/temp.mp4',
-  ]);
+  const r = child_process.spawn('/bin/bash', ['./bin/merge.sh', audioUrl], {
+    stdio: [
+      0,
+      "pipe",
+      'pipe',
+    ]
+  });
 
   await s3.upload({
     Bucket: process.env.OUTPUT_BUCKET!,
     Key: `${id}.mp4`,
-    Body: fs.createReadStream('/tmp/temp.mp4'),
-    // Body: Buffer.from(r2.stdout),
+    Body: r.stdout!,
     ContentType: 'video/mp4',
   }).promise();
 

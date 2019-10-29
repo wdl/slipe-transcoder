@@ -29,16 +29,14 @@ export const invoke = async (event: any, context: any) => {
   const mm = Math.floor(sss / 60) % 60;
   const hh = Math.floor(sss / 3600);
 
-  const r = child_process.spawnSync('./bin/ffmpeg', [
+  const r = child_process.spawn('./bin/ffmpeg', [
     '-y', '-ss', `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`, '-t', '00:00:10', '-i', url, `-an`, '-vcodec', 'libx264', `-bsf:v`, `h264_mp4toannexb`, `-f`, `mpegts`, `-`,
   ]);
-
-  console.log(r.stderr.toString());
 
   await s3.upload({
     Bucket: process.env.BUCKET_NAME!,
     Key: `${event.id}/${part.toString().padStart(4, '0')}.ts`,
-    Body: Buffer.from(r.stdout),
+    Body: r.stdout!,
   }).promise();
 
   await ddb.update({
