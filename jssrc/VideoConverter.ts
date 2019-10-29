@@ -30,7 +30,7 @@ export const invoke = async (event: any, context: any) => {
   const hh = Math.floor(sss / 3600);
 
   const r = child_process.spawn('./bin/ffmpeg', [
-    '-y', '-ss', `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`, '-t', '00:00:10', '-i', url, `-an`, '-vcodec', 'libx264', `-bsf:v`, `h264_mp4toannexb`, `-f`, `mpegts`, `-`,
+    '-y', '-ss', `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`, '-t', '00:00:10', '-i', url, `-sn`, `-an`, '-vcodec', 'libx264', `-bsf:v`, `h264_mp4toannexb`, `-f`, `mpegts`, `-`,
   ]);
 
   await s3.upload({
