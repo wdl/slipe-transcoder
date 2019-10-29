@@ -37,6 +37,9 @@ export const invoke = async (event: any, context: any) => {
 
   return {
     statusCode: 200,
-    body: JSON.stringify(r),
+    body: JSON.stringify({
+      id,
+      ...r
+    }),
   };
 }

@@ -76,12 +76,13 @@ export const invoke = async (event: any, context: any) => {
   const req = await ddb.get({
     TableName: process.env.API_TABLE_NAME!,
     Key: {
-      id: id,
+      id,
     },
   }).promise();
 
   try {
     await Axios.post(req.Item!.callback, {
+      id,
       token: req.Item!.token,
       url,
     });
