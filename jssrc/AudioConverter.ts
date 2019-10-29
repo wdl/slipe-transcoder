@@ -4,12 +4,6 @@ import AWS = require('aws-sdk');
 
 import fs = require('fs');
 
-fs.copyFileSync('./bin/ffmpeg', '/tmp/ffmpeg');
-fs.copyFileSync('./bin/ffprobe', '/tmp/ffprobe');
-
-fs.chmodSync('/tmp/ffmpeg', '755');
-fs.chmodSync('/tmp/ffprobe', '755');
-
 const s3 = new AWS.S3();
 const ddb = new AWS.DynamoDB.DocumentClient();
 
@@ -27,7 +21,7 @@ export const invoke = async (event: any, context: any) => {
     });
   });
 
-  const r = child_process.spawnSync('/tmp/ffmpeg', [
+  const r = child_process.spawnSync('./bin/ffmpeg', [
     '-y', '-i', url, `-c:a`, `aac`, `-b:a`, `128000`, '-f', 'adts', `-`,
   ]);
 

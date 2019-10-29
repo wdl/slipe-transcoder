@@ -6,12 +6,6 @@ import fs = require('fs');
 
 import _ from 'lodash';
 
-fs.copyFileSync('./bin/ffmpeg', '/tmp/ffmpeg');
-fs.copyFileSync('./bin/ffprobe', '/tmp/ffprobe');
-
-fs.chmodSync('/tmp/ffmpeg', '755');
-fs.chmodSync('/tmp/ffprobe', '755');
-
 const s3 = new AWS.S3();
 
 export const invoke = async (event: any, context: any) => {
@@ -49,11 +43,11 @@ export const invoke = async (event: any, context: any) => {
     });
   });
 
-  const r = child_process.spawnSync('/tmp/ffmpeg', [
+  const r = child_process.spawnSync('./bin/ffmpeg', [
     '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-f', 'concat', '-safe', '0', '-i', '/tmp/list.txt', '-c', 'copy', '/tmp/video.mp4',
   ]);
 
-  const r2 = child_process.spawnSync('/tmp/ffmpeg', [
+  const r2 = child_process.spawnSync('./bin/ffmpeg', [
     '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-i', '/tmp/video.mp4', '-i', audioUrl, '-c', 'copy', '-f', 'mp4', '/tmp/temp.mp4',
   ]);
 
