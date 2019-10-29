@@ -55,7 +55,6 @@ export const invoke = async (event: any, context: any) => {
     Bucket: process.env.OUTPUT_BUCKET!,
     Key: `${id}.mp4`,
     Body: r.stdout!,
-    ContentType: 'video/mp4',
   }).promise();
 
   return {};
