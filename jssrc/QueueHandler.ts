@@ -39,16 +39,11 @@ export const invoke = async (event: any, context: any) => {
       encoding: 'utf-8',
     });
   
-    // console.log(JSON.stringify(event));
-    console.log(r);
-    console.log(r.stdout);
-    console.log(r.stderr);
-
     const data = JSON.parse(r.stdout);
 
     const duration = Number(data.format.duration);
 
-    const id = uuid.v4();
+    const id = rc.s3.object.key;
 
     const numParts = Math.ceil(duration / 10);
 

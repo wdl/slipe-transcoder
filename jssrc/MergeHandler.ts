@@ -6,7 +6,10 @@ import fs = require('fs');
 
 import _ from 'lodash';
 
+import Axios from 'axios';
+
 const s3 = new AWS.S3();
+const ddb = new AWS.DynamoDB.DocumentClient();
 
 export const invoke = async (event: any, context: any) => {
   const { id, video_done: parts } = event;
@@ -56,6 +59,35 @@ export const invoke = async (event: any, context: any) => {
     Key: `${id}.mp4`,
     Body: r.stdout!,
   }).promise();
+
+  const url = s3.getSignedUrl('getObject', {
+    Bucket: process.env.OUTPUT_BUCKET!,
+    Key: `${id}.mp4`,
+    Expires: 3600 * 24,
+  });
+
+  await ddb.delete({
+    TableName: process.env.QUEUE_TABLE_NAME!,
+    Key: {
+      id,
+    },
+  }).promise();
+
+  const req = await ddb.get({
+    TableName: process.env.API_TABLE_NAME!,
+    Key: {
+      id: id,
+    },
+  }).promise();
+
+  try {
+    await Axios.post(req.Item!.callback, {
+      token: req.Item!.token,
+      url,
+    });
+  } catch (e) {
+
+  }
 
   return {};
 }

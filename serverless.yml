@@ -65,6 +65,19 @@ package:
     - venv/**/*
 
 functions:
+  ApiHandler:
+    handler: jslib/ApiHandler.invoke
+    timeout: 30
+    memorySize: 256
+    environment:
+      TABLE_NAME:
+        Ref: ApiTable
+      BUCKET_NAME:
+        Ref: QueueBucket
+    events:
+      - http:
+          path: '/'
+          method: post
   QueueHandler:
     handler: jslib/QueueHandler.invoke
     events:
@@ -119,6 +132,10 @@ functions:
         Ref: TempBucket
       OUTPUT_BUCKET:
         Ref: OutputBucket
+      API_TABLE_NAME:
+        Ref: ApiTable
+      QUEUE_TABLE_NAME:
+        Ref: QueueTable
 
 
 # you can add CloudFormation resource templates here
@@ -133,6 +150,16 @@ resources:
     OutputBucket:
       Type: AWS::S3::Bucket
       Properties: {}
+    ApiTable:
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
     QueueTable:
       Type: AWS::DynamoDB::Table
       Properties: 
