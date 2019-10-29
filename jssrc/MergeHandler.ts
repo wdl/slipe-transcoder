@@ -36,8 +36,6 @@ export const invoke = async (event: any, context: any) => {
 
   fs.writeFileSync('/tmp/list.txt', list.join('\n'));
 
-  console.log(fs.readFileSync('/tmp/list.txt', 'utf-8'));
-
   const audioUrl = await new Promise<string>((resolve, reject) => {
     s3.getSignedUrl('getObject', {
       Bucket: process.env.TEMP_BUCKET!,
@@ -52,19 +50,20 @@ export const invoke = async (event: any, context: any) => {
   });
 
   const r = child_process.spawnSync('/tmp/ffmpeg', [
-    '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-f', 'concat', '-safe', '0', '-i', '/tmp/list.txt', '-i', audioUrl, '-c', 'copy', '/tmp/temp.mp4',
+    '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-f', 'concat', '-safe', '0', '-i', '/tmp/list.txt', '-c', 'copy', '/tmp/video.mp4',
   ]);
 
-  console.log(r.stderr.toString());
+  const r2 = child_process.spawnSync('/tmp/ffmpeg', [
+    '-y', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto', '-i', '/tmp/video.mp4', '-i', audioUrl, '-c', 'copy', '-f', 'mp4', '/tmp/temp.mp4',
+  ]);
 
   await s3.upload({
     Bucket: process.env.OUTPUT_BUCKET!,
     Key: `${id}.mp4`,
     Body: fs.createReadStream('/tmp/temp.mp4'),
+    // Body: Buffer.from(r2.stdout),
+    ContentType: 'video/mp4',
   }).promise();
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(event),
-  };
+  return {};
 }

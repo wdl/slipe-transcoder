@@ -28,7 +28,7 @@ export const invoke = async (event: any, context: any) => {
   });
 
   const r = child_process.spawnSync('/tmp/ffmpeg', [
-    '-y', '-i', url, `-c:a`, `aac`, `-b:a`, `192000`, `/tmp/temp.aac`,
+    '-y', '-i', url, `-c:a`, `aac`, `-b:a`, `128000`, '-f', 'adts', `-`,
   ]);
 
   console.log(r.stderr.toString());
@@ -36,7 +36,7 @@ export const invoke = async (event: any, context: any) => {
   await s3.upload({
     Bucket: process.env.BUCKET_NAME!,
     Key: `${event.id}/audio.aac`,
-    Body: fs.createReadStream('/tmp/temp.aac'),
+    Body: Buffer.from(r.stdout),
   }).promise();
 
   await ddb.update({
@@ -53,8 +53,5 @@ export const invoke = async (event: any, context: any) => {
     },
   }).promise();
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(event),
-  };
+  return {};
 }

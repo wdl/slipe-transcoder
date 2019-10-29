@@ -50,7 +50,7 @@ export const invoke = async (event: any, context: any) => {
 
     const id = uuid.v4();
 
-    const numParts = Math.ceil(duration / 60);
+    const numParts = Math.ceil(duration / 10);
 
     await ddb.put({
       TableName: process.env.TABLE_NAME!,

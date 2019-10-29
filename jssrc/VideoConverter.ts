@@ -29,11 +29,14 @@ export const invoke = async (event: any, context: any) => {
 
   const { part } = event;
 
-  const mm = part % 60;
-  const hh = Math.floor(part / 60);
+  let sss = part * 10;
+
+  const ss = sss % 60;
+  const mm = Math.floor(sss / 60) % 60;
+  const hh = Math.floor(sss / 3600);
 
   const r = child_process.spawnSync('/tmp/ffmpeg', [
-    '-y', '-ss', `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:00`, '-t', '00:01:00', '-i', url, `-an`, '-vcodec', 'libx264', `-bsf:v`, `h264_mp4toannexb`, `-f`, `mpegts`, `/tmp/temp.ts`,
+    '-y', '-ss', `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`, '-t', '00:00:10', '-i', url, `-an`, '-vcodec', 'libx264', `-bsf:v`, `h264_mp4toannexb`, `-f`, `mpegts`, `-`,
   ]);
 
   console.log(r.stderr.toString());
@@ -41,7 +44,7 @@ export const invoke = async (event: any, context: any) => {
   await s3.upload({
     Bucket: process.env.BUCKET_NAME!,
     Key: `${event.id}/${part.toString().padStart(4, '0')}.ts`,
-    Body: fs.createReadStream('/tmp/temp.ts'),
+    Body: Buffer.from(r.stdout),
   }).promise();
 
   await ddb.update({
@@ -58,8 +61,5 @@ export const invoke = async (event: any, context: any) => {
     },
   }).promise();
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(event),
-  };
+  return {};
 }
