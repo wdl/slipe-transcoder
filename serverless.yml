@@ -1,0 +1,151 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: slipe-transcoder
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        - 'arn:aws:s3:::#{QueueBucket}/*'
+        - 'arn:aws:s3:::#{TempBucket}/*'
+        - 'arn:aws:s3:::#{OutputBucket}/*'
+    - Effect: "Allow"
+      Action:
+        - "lambda:InvokeFunction"
+        - "dynamodb:*"
+      Resource: '*'
+        # - Fn::GetAtt: AudioConverterLambdaFunction.Arn
+        # - Fn::GetAtt: VideoConverterLambdaFunction.Arn
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+plugins:
+  - serverless-cloudformation-sub-variables
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+
+# you can add packaging information here
+package:
+  include:
+    - bin/*
+  exclude:
+    - venv/**/*
+
+functions:
+  QueueHandler:
+    handler: jslib/QueueHandler.invoke
+    events:
+      - s3:
+          bucket:
+            Ref: QueueBucket
+          event: s3:ObjectCreated:*
+          existing: true
+    environment:
+      TABLE_NAME:
+        Ref: QueueTable
+      LAMBDA_AUDIO_CONVERTER:
+        Ref: AudioConverterLambdaFunction
+      LAMBDA_VIDEO_CONVERTER:
+        Ref: VideoConverterLambdaFunction
+  AudioConverter:
+    handler: jslib/AudioConverter.invoke
+    timeout: 400
+    memorySize: 2048
+    environment:
+      BUCKET_NAME:
+        Ref: TempBucket
+      TABLE_NAME:
+        Ref: QueueTable
+  VideoConverter:
+    handler: jslib/VideoConverter.invoke
+    timeout: 200
+    memorySize: 1024
+    environment:
+      BUCKET_NAME:
+        Ref: TempBucket
+      TABLE_NAME:
+        Ref: QueueTable
+  DynamodbStreamHandler:
+    handler: jslib/DynamodbStreamHandler.invoke
+    timeout: 30
+    memorySize: 512
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: QueueTable.StreamArn
+    environment:
+      LAMBDA_MERGE_HANDLER:
+        Ref: MergeHandlerLambdaFunction
+  MergeHandler:
+    handler: jslib/MergeHandler.invoke
+    timeout: 300
+    memorySize: 1024
+    environment:
+      TEMP_BUCKET:
+        Ref: TempBucket
+      OUTPUT_BUCKET:
+        Ref: OutputBucket
+
+
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    QueueBucket:
+      Type: AWS::S3::Bucket
+      Properties: {}
+    TempBucket:
+      Type: AWS::S3::Bucket
+      Properties: {}
+    OutputBucket:
+      Type: AWS::S3::Bucket
+      Properties: {}
+    QueueTable:
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        StreamSpecification: 
+          StreamViewType: NEW_AND_OLD_IMAGES
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"

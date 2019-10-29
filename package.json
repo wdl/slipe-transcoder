@@ -1,0 +1,27 @@
+{
+  "name": "slipe-transcoder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.144",
+    "@types/node": "^12.11.7",
+    "@types/uuid": "^3.4.5",
+    "aws-sdk": "^2.556.0",
+    "serverless-cloudformation-sub-variables": "^0.2.1",
+    "serverless-prune-plugin": "^1.4.1",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "npx tsc -p ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
