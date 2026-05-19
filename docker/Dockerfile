@@ -10,7 +10,7 @@ RUN dnf -y install tar xz && \
     /opt/ffmpeg/ffmpeg -version
 
 # -------- Stage 2: TypeScript build --------
-FROM public.ecr.aws/lambda/nodejs:20-arm64 AS build
+FROM public.ecr.aws/lambda/nodejs:24-arm64 AS build
 WORKDIR /build
 COPY package.json package-lock.json* tsconfig.json tsconfig.build.json ./
 # install with dev deps for the build
@@ -20,7 +20,7 @@ RUN npx tsc -p tsconfig.build.json && \
     npm prune --omit=dev
 
 # -------- Stage 3: Runtime image --------
-FROM public.ecr.aws/lambda/nodejs:20-arm64
+FROM public.ecr.aws/lambda/nodejs:24-arm64
 COPY --from=ffmpeg /opt/ffmpeg/ffmpeg  /usr/local/bin/ffmpeg
 COPY --from=ffmpeg /opt/ffmpeg/ffprobe /usr/local/bin/ffprobe
 RUN chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe
