@@ -1,24 +1,29 @@
-# Distribution / packaging
-.Python
-venv/
-build/
-develop-eggs/
+# Build outputs
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+cdk.out/
+coverage/
+build/
 
-# Serverless directories
-.serverless
+# Dependencies
+node_modules/
 
-jslib
-pylib/__pycache__
-node_modules
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# CDK / Docker scratch
+.cdk.staging/

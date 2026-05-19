@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      aws-sdk:
+        patterns:
+          - '@aws-sdk/*'
+      aws-cdk:
+        patterns:
+          - 'aws-cdk-lib'
+          - 'aws-cdk'
+          - 'constructs'
+      powertools:
+        patterns:
+          - '@aws-lambda-powertools/*'
+      typescript:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+          - '@typescript-eslint/*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /docker
+    schedule:
+      interval: weekly

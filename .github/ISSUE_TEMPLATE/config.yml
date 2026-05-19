@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 보안 이슈 보고
+    url: https://github.com/security/advisories
+    about: 보안 취약점은 공개 이슈로 보고하지 말고 Security Advisory를 사용해 주세요.
