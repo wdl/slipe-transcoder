@@ -1,8 +1,8 @@
 name: Deploy
 
+# Disabled: only fires when manually dispatched, and the job is gated off.
+# Remove `if: false` and add a `push:` trigger when ready to enable.
 on:
-  push:
-    branches: [master, main]
   workflow_dispatch:
     inputs:
       stage:
@@ -20,6 +20,7 @@ permissions:
 
 jobs:
   deploy:
+    if: false
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.stage || 'dev' }}
     steps:
@@ -28,7 +29,10 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - run: npm ci
+      # Workaround: aws-cdk-lib 2.250+ ships a bundled-dep metadata mismatch
+      # (cloud-assembly-api declares jsonschema ~1.4.1 but bundles 1.5.0) that
+      # makes `npm ci` reject the lockfile. Runtime is unaffected.
+      - run: npm install --no-audit --no-fund
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
