@@ -45,9 +45,9 @@
     "verify": "npm run lint && npm run typecheck && npm run test && npm run cdk:synth"
   },
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^2.10.0",
-    "@aws-lambda-powertools/metrics": "^2.10.0",
-    "@aws-lambda-powertools/tracer": "^2.10.0",
+    "@aws-lambda-powertools/logger": "^2.33.1",
+    "@aws-lambda-powertools/metrics": "^2.33.1",
+    "@aws-lambda-powertools/tracer": "^2.33.1",
     "@aws-sdk/client-dynamodb": "^3.1050.0",
     "@aws-sdk/client-lambda": "^3.1050.0",
     "@aws-sdk/client-s3": "^3.1050.0",
