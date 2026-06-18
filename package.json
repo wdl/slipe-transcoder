@@ -61,9 +61,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.145",
-    "@types/node": "^25.9.1",
-    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@types/aws-lambda": "^8.10.162",
+    "@types/node": "^25.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.10.0",
     "aws-cdk": "^2.1123.0",
     "aws-cdk-lib": "^2.255.0",
